@@ -15,7 +15,7 @@ export async function middleware(request: NextRequest) {
   // E.g. /kv/foo/bar/baz -> foo:bar:baz
   const path = request.nextUrl.pathname
     .split('/')
-    .slice(2)
+    .slice(1)
     .filter(Boolean)
     .join(':')
   console.log('newPath', path)
