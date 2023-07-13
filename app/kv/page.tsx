@@ -9,42 +9,46 @@ function stable(obj: Record<string, any>) {
 }
 
 function Pair({ k, v }: { k: string; v: string }) {
+  async function remove() {
+    'use server'
+    await kv.hdel('data', k)
+    redirect('/kv')
+  }
+
   return (
     <div className="flex flex-row gap-2">
-      <div
-        className="w-1/2 text
-      -gray-700 text-right"
-      >
-        {`${k}: `}
-      </div>
+      <div className="w-1/2 text font-bold text-right">{`${k}: `}</div>
       <div className="w-1/2 text-gray-700">{v}</div>
+      <form action={remove} autoComplete="off">
+        <button type="submit">x</button>
+      </form>
     </div>
   )
 }
 
 export default async function KeyValue() {
   const data = (await kv.hgetall('data')) as Record<string, string>
-  console.log('data', stable(data))
+  console.log('fetched data', stable(data))
 
   async function setData(data: FormData) {
     'use server'
     // Convert FormData to JSON
     const json = Object.fromEntries(data.entries())
     const final = { [json.shortlink as string]: json.longlink }
-    console.log('final is', final)
+    // console.log('final is', final)
     await kv.hset('data', final)
     // Redirect to the current page
+    // TODO: Upon refresh, data doesn't sometimes isn't up to date.
     redirect('/kv')
   }
   return (
     <div className="p-4 max-w-sm m-auto">
-      {/* <p>Hello world! data: {JSON.stringify(stable(data))}</p> */}
       {/* Render a Pair for each entry in stable(data) */}
       {Object.entries(stable(data)).map(([key, value]) => (
         <Pair key={key} k={key} v={value} />
       ))}
 
-      <form action={setData} autoComplete="off">
+      <form action={setData} autoComplete="off" className="mt-6">
         <input
           name="shortlink"
           placeholder="Key"
