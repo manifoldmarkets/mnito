@@ -26,7 +26,8 @@ function Pair({ k, v }: { k: string; v: string }) {
             {v}
           </Link>
         ) : (
-          <span>{v}</span>
+          // Otherwise, link to subpage
+          <Link href={`/kv/${k}`}>{v}</Link>
         )}
       </div>
       <form action={remove} autoComplete="off">
@@ -36,9 +37,9 @@ function Pair({ k, v }: { k: string; v: string }) {
   )
 }
 
-export default async function KeyValue() {
-  const data = (await kv.hgetall('data')) as Record<string, string>
-  console.log('fetched data', stable(data))
+export async function KeyValue(props: { redisKey: string }) {
+  const { redisKey } = props
+  const data = ((await kv.hgetall(redisKey)) || {}) as Record<string, string>
 
   async function setData(data: FormData) {
     'use server'
@@ -46,13 +47,16 @@ export default async function KeyValue() {
     const json = Object.fromEntries(data.entries())
     const final = { [json.shortlink as string]: json.longlink }
     // console.log('final is', final)
-    await kv.hset('data', final)
+    await kv.hset(redisKey, final)
     // Redirect to the current page
     // TODO: Upon refresh, data doesn't sometimes isn't up to date.
     redirect('/kv')
   }
+
   return (
     <div className="p-4 max-w-sm m-auto">
+      <h1 className="text-2xl font-bold text-center mb-4">/{redisKey}</h1>
+
       {/* Render a Pair for each entry in stable(data) */}
       {Object.entries(stable(data)).map(([key, value]) => (
         <Pair key={key} k={key} v={value} />
@@ -79,4 +83,8 @@ export default async function KeyValue() {
       </form>
     </div>
   )
+}
+
+export default async function Top() {
+  return <KeyValue redisKey="data" />
 }
