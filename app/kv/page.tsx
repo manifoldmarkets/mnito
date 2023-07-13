@@ -1,4 +1,5 @@
 import { kv } from '@vercel/kv'
+import Link from 'next/link'
 import { redirect } from 'next/navigation'
 
 // Given a JSON object, return the same object with its keys sorted alphabetically
@@ -14,11 +15,20 @@ function Pair({ k, v }: { k: string; v: string }) {
     await kv.hdel('data', k)
     redirect('/kv')
   }
+  const isLink = v.startsWith('http')
 
   return (
     <div className="flex flex-row gap-2">
-      <div className="w-1/2 text font-bold text-right">{`${k}: `}</div>
-      <div className="w-1/2 text-gray-700">{v}</div>
+      <div className="w-1/4 text font-bold text-right">{`${k}: `}</div>
+      <div className="w-3/4 text-gray-700 truncate" title={v}>
+        {isLink ? (
+          <Link className="text-blue-700" href={v}>
+            {v}
+          </Link>
+        ) : (
+          <span>{v}</span>
+        )}
+      </div>
       <form action={remove} autoComplete="off">
         <button type="submit">x</button>
       </form>
