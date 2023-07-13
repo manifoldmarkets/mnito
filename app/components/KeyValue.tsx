@@ -13,7 +13,7 @@ function Pair({ k, v }: { k: string; v: string }) {
   async function remove() {
     'use server'
     await kv.hdel('data', k)
-    redirect('/kv')
+    redirect('/')
   }
   const isLink = v.startsWith('http')
 
@@ -27,7 +27,7 @@ function Pair({ k, v }: { k: string; v: string }) {
           </Link>
         ) : (
           // Otherwise, link to subpage
-          <Link href={`/kv/${k}`}>{v}</Link>
+          <Link href={`/${k}`}>{v}</Link>
         )}
       </div>
       <form action={remove} autoComplete="off">
@@ -50,7 +50,7 @@ export async function KeyValue(props: { redisKey: string }) {
     await kv.hset(redisKey, final)
     // Redirect to the current page
     // TODO: Upon refresh, data doesn't sometimes isn't up to date.
-    redirect('/kv')
+    redirect('/')
   }
 
   return (
@@ -83,8 +83,4 @@ export async function KeyValue(props: { redisKey: string }) {
       </form>
     </div>
   )
-}
-
-export default async function Top() {
-  return <KeyValue redisKey="data" />
 }

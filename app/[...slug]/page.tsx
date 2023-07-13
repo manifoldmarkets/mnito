@@ -1,4 +1,4 @@
-import { KeyValue } from '../page'
+import { KeyValue } from '../components/KeyValue'
 
 export default async function Subpage(props: { params: { slug: string[] } }) {
   const { params } = props
