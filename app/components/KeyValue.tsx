@@ -1,3 +1,4 @@
+import { HARD_PATHS } from '@/hardcode'
 import { kv } from '@vercel/kv'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
@@ -40,6 +41,10 @@ function Pair({ k, v }: { k: string; v: string }) {
 export async function KeyValue(props: { redisKey: string }) {
   const { redisKey } = props
   const data = ((await kv.hgetall(redisKey)) || {}) as Record<string, string>
+  if (redisKey === 'data') {
+    // Add in the hardcoded paths
+    Object.assign(data, HARD_PATHS)
+  }
 
   async function setData(data: FormData) {
     'use server'
